@@ -9,6 +9,13 @@ const PORT = 3000;
 app.use(cors());
 app.use(bodyParser.json());
 
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "https://web009.wifiooe.at");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  res.header("Access-Control-Allow-Headers", "Content-Type");
+  next();
+});
+
 const usersFilePath = "users.json";
 
 // Register a new user
