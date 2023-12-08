@@ -1,14 +1,16 @@
-// Import required modules
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const cors = require("cors"); // Neu hinzugefügt
 
-// Initialize Express
+// Initialisiere Express
 const app = express();
 const port = 3000;
 
+// Aktiviere CORS
+app.use(cors());
 // Connect to MongoDB
 mongoose.connect("mongodb://localhost:27017/auth_demo", {
   useNewUrlParser: true,
