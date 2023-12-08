@@ -1,76 +1,73 @@
 const express = require("express");
+const cors = require("cors");
 const bodyParser = require("body-parser");
-const bcrypt = require("bcrypt");
-const fs = require("fs/promises");
-const cors = require("cors"); // Add this line
+const fs = require("fs");
 
 const app = express();
 const PORT = 3000;
-const dbFile = "users.json";
 
-app.use(cors()); // Add this line to enable CORS
+app.use(cors());
 app.use(bodyParser.json());
 
+const usersFilePath = "users.json";
+
 // Register a new user
-app.post("/register", async (req, res) => {
+app.post("/register", (req, res) => {
   const { username, password } = req.body;
 
-  try {
-    // Load existing users from the database
-    const users = JSON.parse(await fs.readFile(dbFile, "utf-8"));
-
-    // Check if the username is already taken
-    if (users.find((user) => user.username === username)) {
-      return res.status(400).json({ error: "Username already exists" });
-    }
-
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Save the new user to the database
-    users.push({ username, password: hashedPassword });
-    await fs.writeFile(dbFile, JSON.stringify(users));
-
-    res.status(201).json({ message: "User registered successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal server error" });
+  if (!username || !password) {
+    return res
+      .status(400)
+      .json({ error: "Username and password are required" });
   }
+
+  const users = getUsers();
+  if (users.find((user) => user.username === username)) {
+    return res.status(400).json({ error: "Username already exists" });
+  }
+
+  const newUser = { username, password };
+  users.push(newUser);
+  saveUsers(users);
+
+  res.json({ message: "Registration successful" });
 });
 
-// Login
-app.post("/login", async (req, res) => {
+// Login user
+app.post("/login", (req, res) => {
   const { username, password } = req.body;
 
-  try {
-    // Load existing users from the database
-    const users = JSON.parse(await fs.readFile(dbFile, "utf-8"));
-
-    // Find the user with the given username
-    const user = users.find((user) => user.username === username);
-
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(401).json({ error: "Invalid username or password" });
-    }
-
-    res.json({ message: "Login successful" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal server error" });
+  if (!username || !password) {
+    return res
+      .status(400)
+      .json({ error: "Username and password are required" });
   }
+
+  const users = getUsers();
+  const user = users.find(
+    (user) => user.username === username && user.password === password
+  );
+
+  if (!user) {
+    return res.status(401).json({ error: "Invalid username or password" });
+  }
+
+  res.json({ message: "Login successful" });
 });
 
-// Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
 
-// Initialize the database file if it doesn't exist
-(async () => {
+function getUsers() {
   try {
-    await fs.access(dbFile);
+    const data = fs.readFileSync(usersFilePath);
+    return JSON.parse(data);
   } catch (error) {
-    // File doesn't exist, initialize an empty array
-    await fs.writeFile(dbFile, "[]");
+    return [];
   }
-})();
+}
+
+function saveUsers(users) {
+  fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2));
+}
