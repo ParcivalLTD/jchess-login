@@ -1,80 +1,40 @@
-const express = require("express");
-const cors = require("cors");
-const bodyParser = require("body-parser");
-const fs = require("fs");
+// Assuming you are using Node.js on the server-side
+const mysql = require("mysql");
 
-const app = express();
-const PORT = 3000;
-
-app.use(cors());
-app.use(bodyParser.json());
-
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "https://web009.wifiooe.at");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-  res.header("Access-Control-Allow-Headers", "Content-Type");
-  next();
+const connection = mysql.createConnection({
+  host: "mysql-298e5459-juliangabriel570-d1af.a.aivencloud.com",
+  port: 21976,
+  user: "avnadmin",
+  password: "AVNS_BqpSAwKqIeMrFVry2Pv",
+  database: "defaultdb",
+  ssl: {
+    rejectUnauthorized: true,
+  },
 });
 
-const usersFilePath = "users.json";
+exports.handler = async (event) => {
+  const body = JSON.parse(event.body);
 
-// Register a new user
-app.post("/register", (req, res) => {
-  const { username, password } = req.body;
+  // Perform user registration or login logic here using the provided data
+  const username = body.username;
+  const email = body.email;
+  const idToken = body.idToken;
 
-  if (!username || !password) {
-    return res
-      .status(400)
-      .json({ error: "Username and password are required" });
-  }
+  // Insert or update user in the database
+  const sql = "INSERT INTO users (username, email, id_token) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE username = ?";
+  const values = [username, email, idToken, username];
 
-  const users = getUsers();
-  if (users.find((user) => user.username === username)) {
-    return res.status(400).json({ error: "Username already exists" });
-  }
+  connection.query(sql, values, (error, results) => {
+    if (error) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ message: "Internal Server Error" }),
+      };
+    }
 
-  const newUser = { username, password };
-  users.push(newUser);
-  saveUsers(users);
-
-  res.json({ message: "Registration successful" });
-});
-
-// Login user
-app.post("/login", (req, res) => {
-  const { username, password } = req.body;
-
-  if (!username || !password) {
-    return res
-      .status(400)
-      .json({ error: "Username and password are required" });
-  }
-
-  const users = getUsers();
-  const user = users.find(
-    (user) => user.username === username && user.password === password
-  );
-
-  if (!user) {
-    return res.status(401).json({ error: "Invalid username or password" });
-  }
-
-  res.json({ message: "Login successful" });
-});
-
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
-
-function getUsers() {
-  try {
-    const data = fs.readFileSync(usersFilePath);
-    return JSON.parse(data);
-  } catch (error) {
-    return [];
-  }
-}
-
-function saveUsers(users) {
-  fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2));
-}
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ message: "Success" }),
+    };
+  });
+};
