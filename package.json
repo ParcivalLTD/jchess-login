@@ -1,7 +1,6 @@
 {
   "name": "auth0-express-webapp-sample",
   "scripts": {
-    "npm start": "node server.js",
     "start": "node server.js"
   },
   "dependencies": {
