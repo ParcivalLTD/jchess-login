@@ -11,6 +11,8 @@ require("dotenv").config(); // Load environment variables from a .env file
 const app = express();
 const port = process.env.PORT || 3000;
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
 // MySQL database connection
 const connection = mysql.createPool({
   host: process.env.DB_HOST,
