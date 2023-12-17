@@ -1,17 +1,23 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
+const mongoose = require("mongoose");
 
 const app = express();
-app.use(cors());
+app.use(cors);
 const PORT = process.env.PORT || 3000;
 
 // Replace 'your_database_url' with your MongoDB connection string
-const mongoURI = "mongodb+srv://juliangabriel570:Yw013p9K6s5EEcvA@cluster0.76zba9m.mongodb.net/?retryWrites=true&w=majority";
-mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true });
+const uri = "mongodb+srv://username:Yw013p9K6s5EEcvA@cluster.mongodb.net/myDB?retryWrites=true&w=majority&ssl=true&ssl_cert_reqs=CERT_NONE";
+mongoose
+  .connect(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("MongoDB Connected..."))
+  .catch((err) => console.log(err));
 
 const User = mongoose.model("User", {
   username: String,
