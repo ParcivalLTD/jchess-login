@@ -2,9 +2,10 @@ const express = require("express");
 const morgan = require("morgan");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
+const { env } = require("process");
 
-const PORT = 1234;
-const SECRET = "mykey";
+const PORT = env.process.PORT || 3000;
+const SECRET = "magomed23";
 const app = express();
 
 app.use(cors());
