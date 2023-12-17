@@ -47,6 +47,7 @@ const connection = mysql.createPool({
     L6RoprGh6FAL24UKmG4UCzhzwDPv5ViN8ISvxiPn4+yNCi2SYw==
     -----END CERTIFICATE-----
     `,
+    rejectUnauthorized: false,
   },
 });
 
