@@ -5,6 +5,7 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken"); // Import the jsonwebtoken library
 const { check, validationResult } = require("express-validator");
+const fs = require("fs");
 
 require("dotenv").config(); // Load environment variables from a .env file
 
