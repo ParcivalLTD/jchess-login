@@ -31,6 +31,16 @@ app.use(cors({ origin: "https://web009.wifiooe.at" })); // Specify your frontend
 // Secret key for signing JWTs
 const jwtSecretKey = process.env.JWT_SECRET_KEY || "magomedstinky123"; // Replace with a secure secret key
 
+connection.getConnection((err, conn) => {
+  if (err) {
+    console.error("Error getting MySQL connection:", err);
+  } else {
+    console.log("Connected to MySQL database");
+    // Release the connection back to the pool
+    conn.release();
+  }
+});
+
 // Create the database and table if they don't exist
 connection.query(
   `
