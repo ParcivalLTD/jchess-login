@@ -9,7 +9,7 @@ const app = express();
 app.use(cors);
 const PORT = process.env.PORT || 3000;
 
-const uri = "mongodb+srv://username:Yw013p9K6s5EEcvA@cluster.mongodb.net/myDB?retryWrites=true&w=majority&ssl=true&ssl_cert_reqs=CERT_NONE";
+const uri = "mongodb+srv://username:Yw013p9K6s5EEcvA@cluster.mongodb.net/myDB?retryWrites=true&w=majority&ssl=true";
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
