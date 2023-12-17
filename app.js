@@ -18,7 +18,7 @@ const connection = mysql.createPool({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  ssl: { mode: "REQUIRED" },
+  ssl: { mode: "REQUIRED", rejectUnauthorized: false }, // Add this line
 });
 
 app.use(bodyParser.json());
