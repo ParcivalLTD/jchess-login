@@ -88,20 +88,15 @@ app.post("/register", (req, res) => {
 
     res.status(201).json({ message: `user ${id} created`, content: newUser });
   } catch (error) {
-    console.error("Error:", error);
-    res.status(500).json({ message: "An error occurred during registration" });
+    console.error("Error during registration:", error);
+    res.status(500).json({ message: "An error occurred during registration", error: error.toString() });
   }
 });
 
 app.get("/me", checkTokenMiddleware, (req, res) => {
-  try {
-    const token = req.headers.authorization && extractBearerToken(req.headers.authorization);
-    const decoded = jwt.decode(token, { complete: false });
-    res.json({ content: decoded });
-  } catch (error) {
-    console.error("Error:", error);
-    res.status(500).json({ message: "An error occurred while getting user data" });
-  }
+  const token = req.headers.authorization && extractBearerToken(req.headers.authorization);
+  const decoded = jwt.decode(token, { complete: false });
+  res.json({ content: decoded });
 });
 
 app.get("*", (req, res) => {
