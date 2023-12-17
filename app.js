@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 const app = express();
 
 // Verbindung zu MongoDB
-mongoose.connect("mongodb+srv://juliangabriel570:@cluster0.76zba9m.mongodb.net/?retryWrites=true&w=majority", {
+mongoose.connect("mongodb+srv://juliangabriel570:kcXARmNXxDcdvMNF@cluster0.76zba9m.mongodb.net/?retryWrites=true&w=majority", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
