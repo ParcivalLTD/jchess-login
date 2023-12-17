@@ -32,11 +32,12 @@ async function run() {
 
 run().catch(console.dir);
 
-const User = mongoose.model("User", {
+const userSchema = new Schema({
   username: String,
   password: String,
 });
 
+const User = client.model("User", userSchema);
 app.use(bodyParser.json());
 
 // Register endpoint
