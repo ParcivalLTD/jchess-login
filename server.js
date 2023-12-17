@@ -8,7 +8,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Replace 'your_database_url' with your MongoDB connection string
-const mongoURI = "mongodb+srv://juliangabriel570:#8zhp15G@cluster0.76zba9m.mongodb.net/?retryWrites=true&w=majority";
+const mongoURI = "mongodb+srv://juliangabriel570:Yw013p9K6s5EEcvA@cluster0.76zba9m.mongodb.net/?retryWrites=true&w=majority";
 mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true });
 
 const User = mongoose.model("User", {
@@ -61,7 +61,7 @@ app.post("/login", async (req, res) => {
     }
 
     // Create a JWT token
-    const token = jwt.sign({ username: user.username }, "your_secret_key", { expiresIn: "1h" });
+    const token = jwt.sign({ username: user.username }, "dfgdgf", { expiresIn: "1h" });
 
     res.json({ token });
   } catch (error) {
