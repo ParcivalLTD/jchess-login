@@ -66,32 +66,42 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  if (!req.body.username || !req.body.password) {
-    return res.status(400).json({ message: "please enter username and password" });
+  try {
+    if (!req.body.username || !req.body.password) {
+      return res.status(400).json({ message: "please enter username and password" });
+    }
+
+    const userExisting = users.find((u) => u.username === req.body.username);
+
+    if (userExisting) {
+      return res.status(400).json({ message: `user ${req.body.username} already existing` });
+    }
+
+    const id = users[users.length - 1].id + 1;
+    const newUser = {
+      id: id,
+      username: req.body.username,
+      password: req.body.password,
+    };
+
+    users.push(newUser);
+
+    res.status(201).json({ message: `user ${id} created`, content: newUser });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ message: "An error occurred during registration" });
   }
-
-  const userExisting = users.find((u) => u.username === req.body.username);
-
-  if (userExisting) {
-    return res.status(400).json({ message: `user ${req.body.username} already existing` });
-  }
-
-  const id = users[users.length - 1].id + 1;
-  const newUser = {
-    id: id,
-    username: req.body.username,
-    password: req.body.password,
-  };
-
-  users.push(newUser);
-
-  res.status(201).json({ message: `user ${id} created`, content: newUser });
 });
 
 app.get("/me", checkTokenMiddleware, (req, res) => {
-  const token = req.headers.authorization && extractBearerToken(req.headers.authorization);
-  const decoded = jwt.decode(token, { complete: false });
-  res.json({ content: decoded });
+  try {
+    const token = req.headers.authorization && extractBearerToken(req.headers.authorization);
+    const decoded = jwt.decode(token, { complete: false });
+    res.json({ content: decoded });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ message: "An error occurred while getting user data" });
+  }
 });
 
 app.get("*", (req, res) => {
