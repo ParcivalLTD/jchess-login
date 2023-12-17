@@ -57,6 +57,26 @@ app.use(cors({ origin: "https://web009.wifiooe.at" })); // Specify your frontend
 // Secret key for signing JWTs
 const jwtSecretKey = process.env.JWT_SECRET_KEY || "magomedstinky123"; // Replace with a secure secret key
 
+// Create the database and table if they don't exist
+connection.query(
+  `
+  CREATE DATABASE IF NOT EXISTS ${process.env.DB_NAME};
+  USE ${process.env.DB_NAME};
+  CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL
+  );
+`,
+  (err) => {
+    if (err) {
+      console.error("Error creating database and table:", err);
+    } else {
+      console.log("Database and table are ready");
+    }
+  }
+);
+
 // Login endpoint
 app.post("/login", [check("username").notEmpty().escape(), check("password").notEmpty()], (req, res) => {
   const errors = validationResult(req);
