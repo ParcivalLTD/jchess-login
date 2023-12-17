@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const app = express();
+app.use(cors());
 const PORT = process.env.PORT || 3000;
 
 // Replace 'your_database_url' with your MongoDB connection string
