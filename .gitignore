@@ -1,24 +1,36 @@
-# Node.js
-node_modules/
+# compiled output
+/dist
+/node_modules
 
 # Logs
 logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
 
-# Dependency directories
-pids
-*.pid
-*.seed
-*.pid.lock
+# OS
+.DS_Store
 
-# Optional npm cache directory
-.npm
+# Tests
+/coverage
+/.nyc_output
 
-# Optional eslint cache
-.eslintcache
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
 
-# dotenv environment variables file
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
 .env
-
-# Compiled binary addons (https://github.com/TooTallNate/node-gyp)
-build/

@@ -1,32 +1,40 @@
 const express = require("express");
+const jwt = require("express-jwt");
+const jwksRsa = require("jwks-rsa");
 const cors = require("cors");
-const cookieSession = require("cookie-session");
+const bodyParser = require("body-parser");
+require("dotenv").config();
 
 const app = express();
 
+app.use(bodyParser.json());
 app.use(cors());
 
-// parse requests of content-type - application/json
-app.use(express.json());
+const authConfig = {
+  domain: process.env.AUTH0_DOMAIN,
+  audience: process.env.AUTH0_AUDIENCE,
+};
 
-// parse requests of content-type - application/x-www-form-urlencoded
-app.use(express.urlencoded({ extended: true }));
-
-app.use(
-  cookieSession({
-    name: "bezkoder-session",
-    keys: ["COOKIE_SECRET"], // should use as secret environment variable
-    httpOnly: true,
-  })
-);
-
-// simple route
-app.get("/", (req, res) => {
-  res.json({ message: "Welcome to bezkoder application." });
+const checkJwt = jwt({
+  secret: jwksRsa.expressJwtSecret({
+    cache: true,
+    rateLimit: true,
+    jwksRequestsPerMinute: 5,
+    jwksUri: `https://${authConfig.domain}/.well-known/jwks.json`,
+  }),
+  audience: authConfig.audience,
+  issuer: `https://${authConfig.domain}/`,
+  algorithms: ["RS256"],
 });
 
-// set port, listen for requests
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}.`);
+app.post("/register", checkJwt, (req, res) => {
+  // Hier können Sie die Registrierungslogik implementieren
+  res.send("Registrierung erfolgreich");
 });
+
+app.post("/login", checkJwt, (req, res) => {
+  // Hier können Sie die Anmelde-Logik implementieren
+  res.send("Anmeldung erfolgreich");
+});
+
+app.listen(3000, () => console.log("API is running on http://localhost:3000"));
