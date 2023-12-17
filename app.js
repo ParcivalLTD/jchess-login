@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const { env } = require("process");
 
-const PORT = env.process.PORT || 3000;
+const PORT = env.PORT || 3000;
 const SECRET = "magomed23";
 const app = express();
 
