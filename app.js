@@ -1,62 +1,102 @@
 const express = require("express");
-const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
+const morgan = require("morgan");
 const jwt = require("jsonwebtoken");
+const cors = require("cors");
 
+const PORT = 1234;
+const SECRET = "mykey";
 const app = express();
 
-// Verbindung zu MongoDB
-mongoose.connect("mongodb+srv://juliangabriel570:kcXARmNXxDcdvMNF@cluster0.76zba9m.mongodb.net/?retryWrites=true&w=majority", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-
-const UserSchema = new mongoose.Schema({
-  username: String,
-  password: String,
-});
-
-UserSchema.pre("save", async function (next) {
-  if (this.isModified("password")) {
-    this.password = await bcrypt.hash(this.password, 10);
-  }
-  next();
-});
-
-const User = mongoose.model("User", UserSchema);
-
+app.use(cors());
+app.use(morgan("tiny"));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-app.post("/register", async (req, res) => {
-  const { username, password } = req.body;
+// Fake users
+let users = [{ id: 1, username: "admin", password: "password123" }];
 
-  if (!username || !password) {
-    return res.status(400).send("Missing username or password");
+const extractBearerToken = (headerValue) => {
+  if (typeof headerValue !== "string") {
+    return false;
   }
 
-  const user = new User({ username, password });
-  await user.save();
+  const matches = headerValue.match(/(bearer)\s+(\S+)/i);
+  return matches && matches[2];
+};
 
-  res.status(201).send("User registered");
-});
+// The middleware
+const checkTokenMiddleware = (req, res, next) => {
+  const token = req.headers.authorization && extractBearerToken(req.headers.authorization);
 
-app.post("/login", async (req, res) => {
-  const { username, password } = req.body;
-
-  const user = await User.findOne({ username });
-
-  if (!user || !(await bcrypt.compare(password, user.password))) {
-    return res.status(400).send("Invalid username or password");
+  if (!token) {
+    return res.status(401).json({ message: "need a token" });
   }
 
-  const token = jwt.sign({ id: user._id }, "secret", { expiresIn: "1h" });
+  jwt.verify(token, SECRET, (err, decodedToken) => {
+    if (err) {
+      return res.status(401).json({ message: "bad token" });
+    }
+  });
 
-  res.send({ token });
+  next();
+};
+
+app.post("/login", (req, res) => {
+  if (!req.body.username || !req.body.password) {
+    return res.status(400).json({ message: "enter the correct username and password" });
+  }
+
+  const user = users.find((u) => u.username === req.body.username && u.password === req.body.password);
+
+  if (!user) {
+    return res.status(400).json({ message: "wrong login or password" });
+  }
+
+  const token = jwt.sign(
+    {
+      sub: user.id,
+      username: user.username,
+    },
+    SECRET,
+    { expiresIn: "3 hours" }
+  );
+
+  res.json({ access_token: token });
 });
 
-app.post("/logout", (req, res) => {
-  // In einer echten Anwendung würden Sie hier das Token auf der Blacklist setzen
-  res.send("Logged out");
+app.post("/register", (req, res) => {
+  if (!req.body.username || !req.body.password) {
+    return res.status(400).json({ message: "please enter username and password" });
+  }
+
+  const userExisting = users.find((u) => u.username === req.body.username);
+
+  if (userExisting) {
+    return res.status(400).json({ message: `user ${req.body.username} already existing` });
+  }
+
+  const id = users[users.length - 1].id + 1;
+  const newUser = {
+    id: id,
+    username: req.body.username,
+    password: req.body.password,
+  };
+
+  users.push(newUser);
+
+  res.status(201).json({ message: `user ${id} created`, content: newUser });
 });
 
-app.listen(3000, () => console.log("Server running on port 3000"));
+app.get("/me", checkTokenMiddleware, (req, res) => {
+  const token = req.headers.authorization && extractBearerToken(req.headers.authorization);
+  const decoded = jwt.decode(token, { complete: false });
+  res.json({ content: decoded });
+});
+
+app.get("*", (req, res) => {
+  res.status(404).json({ message: "page not found" });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}.`);
+});
